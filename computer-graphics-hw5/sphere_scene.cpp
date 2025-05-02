@@ -120,7 +120,6 @@ void save_image(const char* filename) {
 
 void create_scene()
 {
-	gVertexBuffer = new Vec3[gNumVertices];
 	int width = 32;
 	int height = 16;
 
@@ -129,6 +128,7 @@ void create_scene()
 
 	gNumVertices = (height - 2) * width + 2;
 	gNumTriangles = (height - 2) * (width - 1) * 2;
+	gVertexBuffer = new Vec3[gNumVertices];
 
 	// TODO: Allocate an array for gNumVertices vertices.
 
