@@ -111,11 +111,35 @@ void render_scene() {
 	}
 }
 
-void save_image(const char* filename) {
-	FILE* fp = fopen(filename, "wb");
-	fprintf(fp, "P6\n512 512\n255\n");
-	fwrite(image, 1, 512 * 512 * 3, fp);
-	fclose(fp);
+void save_image_bmp(const char* filename) {
+	FILE* f;
+	int w = 512, h = 512;
+	int filesize = 54 + 3 * w * h;
+	unsigned char bmpfileheader[14] = {
+		'B','M', filesize & 255, (filesize >> 8) & 255, (filesize >> 16) & 255, (filesize >> 24) & 255,
+		0,0, 0,0, 54,0,0,0
+	};
+	unsigned char bmpinfoheader[40] = {
+		40,0,0,0, w & 255, (w >> 8) & 255, (w >> 16) & 255, (w >> 24) & 255,
+		h & 255, (h >> 8) & 255, (h >> 16) & 255, (h >> 24) & 255,
+		1,0, 24,0, 0,0,0,0,
+		0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0
+	};
+
+	f = fopen(filename, "wb");
+	fwrite(bmpfileheader, 1, 14, f);
+	fwrite(bmpinfoheader, 1, 40, f);
+
+	for (int y = h - 1; y >= 0; y--) {
+		for (int x = 0; x < w; x++) {
+			unsigned char r = image[y][x][0];
+			unsigned char g = image[y][x][1];
+			unsigned char b = image[y][x][2];
+			unsigned char color[3] = { b, g, r };
+			fwrite(color, 1, 3, f);
+		}
+	}
+	fclose(f);
 }
 
 void create_scene()
@@ -204,7 +228,7 @@ int main() {
 	create_scene();
 	clear_buffers();
 	render_scene();
-	save_image("output.ppm");
+	save_image_bmp("output.bmp");
 	return 0;
 }
 
